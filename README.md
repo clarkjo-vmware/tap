@@ -2,7 +2,7 @@
 
 ## TAP Install Script
 
-This bash script automates the installation process for TAP (Tanzu Application Platform) utilizing an existing tap values file. The script performs the necessary steps to set up the harbor project, pull the images, push the images, create the tanzu repo and install TAP. The following tasks are executed by the script:
+This repo contains scripts that automate the installation process for TAP (Tanzu Application Platform) utilizing an existing tap values file. The script performs the necessary steps to set up the harbor project, pull the images, push the images, create the tanzu repo and install TAP. The following tasks are executed by the script:
 
 1. Set Environmental Variables: Sets the required environmental variables for the installation.
 2. Check Harbor Project Existence: Verifies if the "tap-packages" Harbor project already exists. If it does, the script skips the project creation step.
@@ -23,3 +23,5 @@ Make sure to set the appropriate values for the environmental variables before r
 To execute the script, save it to a file (e.g., `tap-install-script.sh`), and make it executable using `chmod +x tap-install-script.sh`. Run the script using `./tap-install-script.sh` in a bash environment.
 
 Ensure you have the necessary dependencies and permissions to execute the script successfully.
+
+**Note:** The configs folder has some basic configuration files for post install configuration
