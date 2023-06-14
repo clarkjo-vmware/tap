@@ -1,0 +1,50 @@
+# Set Evnironmental Variables
+
+export IMGPKG_REGISTRY_HOSTNAME=harbor.h2o-2-1674.h2o.vmware.com
+export IMGPKG_REGISTRY_USERNAME=admin
+export IMGPKG_REGISTRY_PASSWORD=password
+export TAP_VERSION=1.5.0
+export REGISTRY_CA_PATH=/home/user/harbor.crt
+export INSTALL_REPO=TARGET-REPOSITORY
+export TAP_VALUES_PATH= /home/ubuntu/utils/apps/tap/configs/tap-full-github.yaml
+
+##Pull TAP Images and package to TAR bundle
+imgpkg copy -b registry.tanzu.vmware.com/tanzu-application-platform/tap-packages:$TAP_VERSION --to-repo $IMGPKG_REGISTRY_HOSTNAME/$INSTALL_REPO/tap-packages
+
+# Push images to Internal repo
+
+
+# Create tap-install namespace
+
+kubectl create ns tap-install
+
+
+# Create registry secret for TAP Install
+
+tanzu secret registry add tap-registry \
+    --server   $IMGPKG_REGISTRY_HOSTNAME \
+    --username $IMGPKG_REGISTRY_USERNAME \
+    --password $IMGPKG_REGISTRY_PASSWORD \
+    --namespace tap-install \
+    --export-to-all-namespaces \
+    --yes
+
+# Add  the tap repo to tanzu
+
+tanzu package repository add tanzu-tap-repository \
+  --url $IMGPKG_REGISTRY_HOSTNAME/tap/tap-packages:$TAP_VERSION \
+  --namespace tap-install
+
+
+# Verify Package repo installed correctly
+tanzu package repository get tanzu-tap-repository --namespace tap-install
+
+# Verify App package is available
+tanzu package available list tap.tanzu.vmware.com --namespace tap-install
+
+#Install TAP using tap-full values file
+tanzu package install tap -p tap.tanzu.vmware.com -v $TAP_VERSION --values-file $TAP_VALUES_PATH -n tap-install
+
+##Uninstall TAP
+#tanzu package installed delete tap --namespace tap-install
+
