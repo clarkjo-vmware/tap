@@ -101,8 +101,8 @@ tap_gui:
       providers:
         github:
           development:
-            clientId: 85017e89380d8f6f7338
-            clientSecret: 8a94085150ec78ec6d991f5f6babf4289c0d997a
+            clientId: <github-app-clientID>
+            clientSecret: <github-app-clientSecret>
         # gitlab:
         #   development:
         #     clientId: "4de65b771e0e8870b6768943b2ed5a8112bfd6832f7352139c6b2a9a566bee52"
@@ -118,7 +118,7 @@ tap_gui:
     integrations:
       github:
         - host: github.com
-          token: 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
+          token: <github-auth-token>
     #   gitlab:
     #     - host: gitlab.git.h2o-2-1674.h2o.vmware.com
     #       token: glpat-5xKffon1gte8aTaCpa-9
