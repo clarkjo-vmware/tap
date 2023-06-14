@@ -11,6 +11,7 @@ export REGISTRY_CA_PATH=/home/ubuntu/utils/certs/harbor.h2o-2-10553.h2o.vmware.c
 export INSTALL_REPO=tap-packages
 export TAP_VALUES_PATH=/home/ubuntu/utils/apps/tap/configs/tap-full-github.yaml
 
+
 # Check if tap-packages project exists
 echo "Checking if tap-packages project exists..."
 response=$(curl -s -o /dev/null -w "%{http_code}" -u "$IMGPKG_REGISTRY_USERNAME:$IMGPKG_REGISTRY_PASSWORD" \
@@ -26,13 +27,13 @@ curl -u "$IMGPKG_REGISTRY_USERNAME:$IMGPKG_REGISTRY_PASSWORD" -X POST \
   "https://$IMGPKG_REGISTRY_HOSTNAME/api/v2.0/projects" \
   -H 'Content-Type: application/json' \
   -d '{
-    "project_name": "tap-packages",
+    "project_name": "tap",
     "public": true
   }'
 
 # Pull TAP Images and package to TAR bundle
-echo "Pulling TAP images and packaging to TAR bundle..."
-imgpkg copy -b registry.tanzu.vmware.com/tanzu-application-platform/tap-packages:$TAP_VERSION --to-repo $IMGPKG_REGISTRY_HOSTNAME/$INSTALL_REPO/tap-packages
+echo "Pulling TAP images and packaging to pushing to internal repo..."
+imgpkg copy -b registry.tanzu.vmware.com/tanzu-application-platform/tap-packages:$TAP_VERSION --to-repo $IMGPKG_REGISTRY_HOSTNAME/tap/tap-packages
 
 # Push images to Internal repo
 
@@ -62,7 +63,7 @@ if ! tanzu package repository get tanzu-tap-repository --namespace tap-install >
   # Add the tap repo to tanzu
   echo "Adding the tap repo to tanzu..."
   tanzu package repository add tanzu-tap-repository \
-    --url $IMGPKG_REGISTRY_HOSTNAME/tap-packages/tap-packages:$TAP_VERSION \
+    --url $IMGPKG_REGISTRY_HOSTNAME/tap/tap-packages:$TAP_VERSION \
     --namespace tap-install
 else
   echo "tanzu-tap-repository already exists. Skipping repository addition."
@@ -80,5 +81,6 @@ tanzu package available list tap.tanzu.vmware.com --namespace tap-install
 echo "Installing TAP using tap-full values file..."
 tanzu package install tap -p tap.tanzu.vmware.com -v $TAP_VERSION --values-file $TAP_VALUES_PATH -n tap-install
 
-## Uninstall TAP
+echo "Tap has been succesfully installed - please allow approximately 5 minutes for reconliiation to complete"
+echo "To Uninstall TAP run the following command"
 # tanzu package installed delete tap --namespace tap-install
