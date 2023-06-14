@@ -9,27 +9,25 @@ export IMGPKG_REGISTRY_PASSWORD=password
 export TAP_VERSION=1.5.0
 export REGISTRY_CA_PATH=/home/ubuntu/utils/certs/harbor.h2o-2-10553.h2o.vmware.com.crt
 export INSTALL_REPO=tap-packages
-export TAP_VALUES_PATH=/home/ubuntu/utils/apps/tap/configs/tap-full-github.yaml
+export TAP_VALUES_PATH=/home/ubuntu/utils/apps/tap/local/tap-full-github.yaml
 
-
-# Check if tap-packages project exists
-echo "Checking if tap-packages project exists..."
+#Create Internal Registry Project
+echo "Checking if tap project exists..."
 response=$(curl -s -o /dev/null -w "%{http_code}" -u "$IMGPKG_REGISTRY_USERNAME:$IMGPKG_REGISTRY_PASSWORD" \
-  "https://$IMGPKG_REGISTRY_HOSTNAME/api/v2.0/projects/tap-packages" 2>/dev/null)
+  "https://$IMGPKG_REGISTRY_HOSTNAME/api/v2.0/projects/tap" 2>&1)
 
 if [ "$response" -eq 200 ]; then
-  echo "tap-packages project already exists. Skipping project creation."
+  echo "TAP project already exists. Skipping project creation."
+else
+  echo "Creating public Harbor project..."
+  curl -u "$IMGPKG_REGISTRY_USERNAME:$IMGPKG_REGISTRY_PASSWORD" -X POST \
+    "https://$IMGPKG_REGISTRY_HOSTNAME/api/v2.0/projects" \
+    -H 'Content-Type: application/json' \
+    -d '{
+      "project_name": "tap",
+      "public": true
+    }'
 fi
-
-# Create Public Harbor Project
-echo "Creating public Harbor project..."
-curl -u "$IMGPKG_REGISTRY_USERNAME:$IMGPKG_REGISTRY_PASSWORD" -X POST \
-  "https://$IMGPKG_REGISTRY_HOSTNAME/api/v2.0/projects" \
-  -H 'Content-Type: application/json' \
-  -d '{
-    "project_name": "tap",
-    "public": true
-  }'
 
 # Pull TAP Images and package to TAR bundle
 echo "Pulling TAP images and packaging to pushing to internal repo..."
