@@ -5,9 +5,9 @@
 This repo contains scripts that automate the installation process for TAP (Tanzu Application Platform) utilizing an existing tap values file. The script performs the necessary steps to set up the harbor project, pull the images, push the images, create the tanzu repo and install TAP. The following tasks are executed by the script:
 
 1. Set Environmental Variables: Sets the required environmental variables for the installation.
-2. Check Harbor Project Existence: Verifies if the "tap-packages" Harbor project already exists. If it does, the script skips the project creation step.
-3. Create Harbor Project: Creates a public Harbor project named "tap-packages".
-4. Pull TAP Images and Package: Pulls TAP images from the registry and packages them into a TAR bundle using `imgpkg` command.
+2. Check Harbor Project Existence: Verifies if the "tap" Harbor project already exists. If it does, the script skips the project creation step.
+3. Create Harbor Project: Creates a public Harbor project named "tap".
+4. Pull TAP Images and Package: Pulls TAP images from the registry and pushes them to an internal repo using `imgpkg` command.
 5. Check Namespace Existence: Checks if the "tap-install" namespace already exists in the Kubernetes cluster. If not, the script creates the namespace.
 6. Create Registry Secret: Creates a registry secret named "tap-registry" to authenticate with the Harbor registry using the provided credentials.
 7. Check Package Repository Existence: Checks if the "tanzu-tap-repository" package repository exists in the "tap-install" namespace. If it does not exist, the script adds the repository.
