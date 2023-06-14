@@ -1,0 +1,122 @@
+shared:
+  ingress_domain: "" # Ingress Domain FQDN for TAP, ie "tap.h2o-2-10553.h2o.vmware.com"
+  image_registry:
+    project_path: "" # Path to TAP images at internal registry, ie "harbor.h2o-2-10553.h2o.vmware.com/tap/tap-packages"
+    username: ""  # Internal registry username
+    password: "" # Internal registry password
+  ca_cert_data: | # Any certifcates needed by TAP, ie Registry Certs, Self signed certs for external resources
+    -----BEGIN CERTIFICATE-----
+
+    -----END CERTIFICATE-----
+profile: full  # Multicluster or Single Cluster deployment
+#excluded_packages:
+#- policy.apps.tanzu.vmware.com
+ceip_policy_disclosed: true
+# buildservice:
+#   kp_default_repository: "harbor.h2o-2-10553.h2o.vmware.com/tap/tap-packages"
+#   kp_default_repository_username: "admin" # Takes the value from the shared section above by default, but can be overridden by setting a different value.
+#   kp_default_repository_password: "password" # Takes the value from the shared section above by default, but can be overridden by setting a different value.
+#   exclude_dependencies: true
+supply_chain: testing_scanning  #OOTB Supply Chain to be used
+scanning:
+  metadataStore:
+    url: ""
+contour:
+  infrastructure_provider: vsphere  #Infrastructure or Cloud Provider
+  envoy:
+    service:
+      type: LoadBalancer
+      loadBalancerIP: 10.184.144.111  #External IP for envoy service object
+      
+ootb_supply_chain_testing_scanning:
+  git_implementation: libgit2
+  registry:
+    server: "harbor.h2o-2-10553.h2o.vmware.com" # Takes the value from the shared section above by default, but can be overridden by setting a different value.
+    repository: "workload" # Internal registry location for post image build process (Must exist prior to build).
+  gitops:
+      ssh_secret: "git-cred"  #SSH key to destination git repo for Flux git ops
+        #  maven:
+        #repository:
+        # url: https://MAVEN-URL
+        # secret_name: "MAVEN-CREDENTIALS"
+
+accelerator:
+  ingress:
+    include: true
+    enable_tls: false
+  git_credentials:
+    secret_name: git-cred  #SSH key for auto generated git repo's using accelerator
+
+
+
+appliveview:
+  ingressEnabled: true
+  tls:
+    secretName: "alv-cert"  #Secretname to allow app-live view integration
+    namespace: "app-live-view"  #Namespace for app-live-view iteration development
+
+appliveview_connector:
+  backend:
+    ingressEnabled: true
+    sslDisabled: true
+    host: appliveview.$ingress_domain  #Appliveview endpoint URL
+
+tap_gui:
+  metadataStoreAutoconfiguration: true
+  service_type: ClusterIP
+  app_config:
+    app:
+      baseUrl: https://tap-gui.$ingress_domain  #URL for TAP-GUI interface
+    auth:
+      providers:
+        github:
+          development:
+            clientId: <github-app-clientID>  #Github Application clientId for Authentication integration
+            clientSecret: <github-app-clientSecret> #Github Application clientSecret for Authentication integration
+        # gitlab:
+        #   development:
+        #     clientId: "4de65b771e0e8870b6768943b2ed5a8112bfd6832f7352139c6b2a9a566bee52"
+        #     clientSecret: "bf9de1ffeb529ee1cf767fd43b3e2712f2db17aa4fe076f31151c195dfef1a78"
+        #     ## uncomment if using self-hosted GitLab
+        #     audience: https://gitlab.git.h2o-2-1674.h2o.vmware.com
+        #     ## uncomment if using a custom redirect URI
+        #     callbackUrl: http://tap-gui.tap.h2o-2-10553.h2o.vmware.com/api/auth/github/handler/frame
+    catalog:
+      locations:
+        - type: url
+          target: https://github.com/catalog/catalog-info.yaml  #Accessible repo to host catalog structure located at: https://network.tanzu.vmware.com/products/tanzu-application-platform
+    integrations:
+      github:
+        - host: github.com
+          token: <github-auth-token>  #Github auth token used to enable github integration
+    #   gitlab:
+    #     - host: gitlab.git.h2o-2-1674.h2o.vmware.com
+    #       token: glpat-5xKffon1gte8aTaCpa-9
+    #       baseUrl: https://gitlab.git.h2o-2-1674.h2o.vmware.com/
+    #       apiBaseUrl: https://gitlab.git.h2o-2-1674.h2o.vmware.com/api/v4
+    backend:
+      baseUrl: https://tap-gui.$ingress_domain
+      cors:
+        origin: https://tap-gui.$ingress_domain
+    kubernetes:
+      serviceLocatorMethod:
+        type: 'multiTenant'
+      clusterLocatorMethods:
+        - type: 'config'
+          clusters:
+            - url: https://${KUBERNETES_SERVICE_HOST}:${KUBERNETES_SERVICE_PORT}
+              name: host
+              authProvider: serviceAccount
+              serviceAccountToken: ${KUBERNETES_SERVICE_ACCOUNT_TOKEN}
+              skipTLSVerify: false
+              caData: =  #Base64 encoded CA data value for kubernetes cluster that TAP will be deployed to (this value can be retrieved from the kubeconfig)
+metadata_store:
+  ns_for_export_app_cert: "*"
+  app_service_type: ClusterIP # Defaults to LoadBalancer. If shared.ingress_domain is set earlier, this must be set to ClusterIP.
+
+grype:
+  namespace: "dev"  #Developer Namespace where scan policies are stored
+  #targetImagePullSecret: "TARGET-REGISTRY-CREDENTIALS-SECRET"
+# policy:
+#   tuf_mirror: http://tuf.tuf-system.svc
+#   tuf_root: 
