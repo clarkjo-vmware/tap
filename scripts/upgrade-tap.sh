@@ -3,13 +3,8 @@
 set -e
 # Set Environmental Variables
 echo "Setting environmental variables..."
-export IMGPKG_REGISTRY_HOSTNAME=harbor.h2o-2-10553.h2o.vmware.com
-export IMGPKG_REGISTRY_USERNAME=admin
-export IMGPKG_REGISTRY_PASSWORD=password
-export TAP_VERSION=1.5.1
-export REGISTRY_CA_PATH=/home/ubuntu/utils/certs/harbor.h2o-2-10553.h2o.vmware.com.crt
-export INSTALL_REPO=tap-packages
-export TAP_VALUES_PATH=/home/ubuntu/utils/apps/tap/configs/tap-full-github.yaml
+
+source variables.env
 
 # Check if tap-packages project exists
 echo "Checking if tap-packages project exists..."
